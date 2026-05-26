@@ -15,9 +15,13 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME = "4ddocker/lab2:${env.BUILD_NUMBER}"
-        IMAGE_LATEST = "4ddocker/lab2:latest"
-        LOCAL_DATA_PATH = "C:\\DopEdu\\ML_ITMO\\DevOpsLab\\Lab2"
+        // Lab3
+        IMAGE_NAME = "4ddocker/lab3:${env.BUILD_NUMBER}"
+        IMAGE_LATEST = "4ddocker/lab3:latest"
+        LOCAL_DATA_PATH = "C:\\DopEdu\\ML_ITMO\\DevOpsLab\\Lab3"
+        
+        // Vault password (из Jenkins credentials)
+        VAULT_PASSWORD = credentials('vault-password')
     }
 
     stages {
@@ -58,7 +62,7 @@ pipeline {
             steps {
                 echo '🧪 Функциональное тестирование по сценарию...'
                 bat """
-                    docker run -d --name test-func-${env.BUILD_NUMBER} -p 8889:8000 ${IMAGE_NAME}
+                    docker run -d --name test-func-${env.BUILD_NUMBER} -p 8889:8000 -e VAULT_PASSWORD=${VAULT_PASSWORD} ${IMAGE_NAME}
                     timeout /t 15 /nobreak > nul
                     curl.exe -f http://localhost:8889/health
                     docker stop test-func-${env.BUILD_NUMBER}
@@ -75,9 +79,9 @@ pipeline {
             steps {
                 echo '🚀 Развертывание контейнера в продакшн...'
                 bat """
-                    docker stop graduate-analytics-prod || true
-                    docker rm graduate-analytics-prod || true
-                    docker run -d --name graduate-analytics-prod -p 8000:8000 --restart unless-stopped ${IMAGE_LATEST}
+                    docker stop lab3-api || true
+                    docker rm lab3-api || true
+                    docker run -d --name lab3-api -p 8000:8000 --restart unless-stopped -e VAULT_PASSWORD=${VAULT_PASSWORD} ${IMAGE_LATEST}
                 """
                 echo '✅ Контейнер развернут'
             }
