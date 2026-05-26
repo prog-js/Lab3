@@ -193,3 +193,6 @@ vscode/
 # Python
 __pycache__/
 *.pyc
+
+vault/secrets-plain.yml
+vault/vault-password.txt
