@@ -4,6 +4,17 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 import json
+from src.vault_client import VaultClient
+
+# Инициализация Vault
+vault = VaultClient()
+db_config = vault.get_db_config()
+
+DB_HOST = db_config.get('host', 'localhost')
+DB_PORT = db_config.get('port', '5432')
+DB_USER = db_config.get('user', 'ml_user')
+DB_PASSWORD = db_config.get('password', '')
+DB_NAME = db_config.get('name', 'ml_models')
 
 # Загрузка конфигурации из переменных окружения
 DB_HOST = os.environ.get('DB_HOST', 'localhost')
