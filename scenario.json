@@ -1,0 +1,32 @@
+{
+    "scenarios": [
+        {
+            "name": "health_check",
+            "method": "GET",
+            "endpoint": "/health",
+            "expected_status": 200
+        },
+        {
+            "name": "regions_list",
+            "method": "GET",
+            "endpoint": "/regions",
+            "expected_status": 200,
+            "expected_fields": ["regions"]
+        },
+        {
+            "name": "universities_list",
+            "method": "GET",
+            "endpoint": "/universities",
+            "expected_status": 200,
+            "expected_fields": ["universities"]
+        },
+        {
+            "name": "top_specialties",
+            "method": "POST",
+            "endpoint": "/top_specialties_matrix",
+            "payload": {"region": "Москва", "top_n": 3},
+            "expected_status": 200,
+            "expected_fields": ["region", "matrix"]
+        }
+    ]
+}
