@@ -19,6 +19,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/ ./src/
 COPY config.ini .
 
+# Копируем зашифрованный файл с секретами
+COPY vault/secrets.enc ./vault/
+
 # Открываем порт
 EXPOSE 8000
 
