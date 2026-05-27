@@ -18,7 +18,7 @@ pipeline {
         // Lab3
         IMAGE_NAME = "4ddocker/lab3:${env.BUILD_NUMBER}"
         IMAGE_LATEST = "4ddocker/lab3:latest"
-        LOCAL_DATA_PATH = "C:\\DopEdu\\ML_ITMO\\DevOps_BigFiles"
+        LOCAL_DATA_PATH = "C:\\DopEdu\\ML_ITMO\\DevOpsLab\\Lab3"
         
         // Vault password (из Jenkins credentials)
         VAULT_PASSWORD = credentials('vault-password')
