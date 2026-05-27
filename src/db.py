@@ -17,7 +17,7 @@ DB_PASSWORD = db_config.get('password', '')
 DB_NAME = db_config.get('name', 'ml_models')
 
 # Загрузка конфигурации из переменных окружения
-DB_HOST = os.environ.get('DB_HOST', 'localhost')
+DB_HOST = os.environ.get('DB_HOST', 'postgres')
 DB_PORT = os.environ.get('DB_PORT', '5432')
 DB_USER = os.environ.get('DB_USER')
 DB_PASSWORD = os.environ.get('DB_PASSWORD')
