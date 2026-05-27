@@ -22,6 +22,9 @@ COPY config.ini .
 # Копируем зашифрованный файл с секретами
 COPY vault/secrets.enc ./vault/
 
+# Копируем данные (CSV файлы)
+COPY data/ ./data/
+
 # Открываем порт
 EXPOSE 8000
 
