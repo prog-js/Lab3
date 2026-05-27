@@ -196,3 +196,8 @@ __pycache__/
 
 vault/secrets-plain.yml
 vault/vault-password.txt
+
+# Vault secrets
+vault/secrets.yml
+vault/vault-password.txt
+encrypt.py
