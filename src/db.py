@@ -10,7 +10,7 @@ from src.vault_client import VaultClient
 vault = VaultClient()
 db_config = vault.get_db_config()
 
-DB_HOST = db_config.get('host', 'localhost')
+DB_HOST = db_config.get('host', 'postgres')
 DB_PORT = db_config.get('port', '5432')
 DB_USER = db_config.get('user', 'ml_user')
 DB_PASSWORD = db_config.get('password', '')
