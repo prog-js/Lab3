@@ -4,7 +4,7 @@ pipeline {
     parameters {
         choice(
             name: 'DEPLOY_ACTION',
-            choices: ['none', 'deploy', 'test_only'],
+            choices: ['deploy', 'none', 'test_only'],
             description: 'Действие: deploy - развернуть контейнер, test_only - только тесты'
         )
         string(
