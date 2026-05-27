@@ -10,18 +10,22 @@ from src.vault_client import VaultClient
 vault = VaultClient()
 db_config = vault.get_db_config()
 
-DB_HOST = db_config.get('host', 'postgres')
-DB_PORT = db_config.get('port', '5432')
-DB_USER = db_config.get('user', 'ml_user')
-DB_PASSWORD = db_config.get('password', '')
-DB_NAME = db_config.get('name', 'ml_models')
-
-# Загрузка конфигурации из переменных окружения
-DB_HOST = os.environ.get('DB_HOST', 'postgres')
-DB_PORT = os.environ.get('DB_PORT', '5432')
+# 1. Сначала переменные окружения
+DB_HOST = os.environ.get('DB_HOST')
+DB_PORT = os.environ.get('DB_PORT')
 DB_USER = os.environ.get('DB_USER')
 DB_PASSWORD = os.environ.get('DB_PASSWORD')
 DB_NAME = os.environ.get('DB_NAME')
+
+# 2. Если их нет — берём из Vault
+if not DB_HOST:
+    vault = VaultClient()
+    db_config = vault.get_db_config()
+    DB_HOST = db_config.get('host', 'postgres')
+    DB_PORT = db_config.get('port', '5432')
+    DB_USER = db_config.get('user', 'ml_user')
+    DB_PASSWORD = db_config.get('password', '')
+    DB_NAME = db_config.get('name', 'ml_models')
 
 # Формирование URL для подключения
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
