@@ -15,12 +15,9 @@ pipeline {
     }
 
     environment {
-        // Lab3
         IMAGE_NAME = "4ddocker/lab3:${env.BUILD_NUMBER}"
         IMAGE_LATEST = '4ddocker/lab3:latest'
         LOCAL_DATA_PATH = 'C:\\DopEdu\\ML_ITMO\\DevOpsLab\\Lab3'
-
-        // Vault password (из Jenkins credentials)
         VAULT_PASSWORD = credentials('vault-password')
     }
 
@@ -36,6 +33,22 @@ pipeline {
         stage('Create Network') {
             steps {
                 bat 'docker network inspect my_network >nul 2>&1 || docker network create my_network'
+            }
+        }
+
+        stage('Start PostgreSQL') {
+            steps {
+                echo '🐘 Запуск PostgreSQL...'
+                bat '''
+                    docker stop postgres || true
+                    docker rm postgres || true
+                    docker run -d --name postgres --network my_network \
+                        -e POSTGRES_USER=ml_user \
+                        -e POSTGRES_PASSWORD=StrongPassword123! \
+                        -e POSTGRES_DB=ml_models \
+                        postgres:15
+                '''
+                echo '✅ PostgreSQL запущен'
             }
         }
 
@@ -68,19 +81,21 @@ pipeline {
             steps {
                 echo '🧪 Функциональное тестирование по сценарию...'
                 bat """
-            docker run -d --name lab3-api -p 8000:8000 --restart unless-stopped --network my_network ^
-        -e VAULT_PASSWORD=${VAULT_PASSWORD} ^
-        -e DB_HOST=postgres ^
-        -e DB_PORT=5432 ^
-        -e DB_USER=ml_user ^
-        -e DB_PASSWORD=StrongPassword123! ^
-        -e DB_NAME=ml_models ^
-        ${IMAGE_LATEST}
-            timeout /t 15 /nobreak > nul
-            curl.exe -f http://localhost:8889/health
-            docker stop test-func-${env.BUILD_NUMBER}
-            docker rm test-func-${env.BUILD_NUMBER}
-        """
+                    docker stop test-func-${env.BUILD_NUMBER} || true
+                    docker rm test-func-${env.BUILD_NUMBER} || true
+                    docker run -d --name test-func-${env.BUILD_NUMBER} -p 8889:8000 --network my_network \
+                        -e VAULT_PASSWORD=${VAULT_PASSWORD} \
+                        -e DB_HOST=postgres \
+                        -e DB_PORT=5432 \
+                        -e DB_USER=ml_user \
+                        -e DB_PASSWORD=StrongPassword123! \
+                        -e DB_NAME=ml_models \
+                        ${IMAGE_NAME}
+                    timeout /t 15 /nobreak > nul
+                    curl.exe -f http://localhost:8889/health
+                    docker stop test-func-${env.BUILD_NUMBER}
+                    docker rm test-func-${env.BUILD_NUMBER}
+                """
                 echo '✅ Функциональные тесты пройдены'
             }
         }
@@ -92,17 +107,17 @@ pipeline {
             steps {
                 echo '🚀 Развертывание контейнера в продакшн...'
                 bat """
-            docker stop lab3-api || true
-            docker rm lab3-api || true
-            docker run -d --name lab3-api -p 8000:8000 --restart unless-stopped --network my_network ^
-        -e VAULT_PASSWORD=${VAULT_PASSWORD} ^
-        -e DB_HOST=postgres ^
-        -e DB_PORT=5432 ^
-        -e DB_USER=ml_user ^
-        -e DB_PASSWORD=StrongPassword123! ^
-        -e DB_NAME=ml_models ^
-        ${IMAGE_LATEST}
-        """
+                    docker stop lab3-api || true
+                    docker rm lab3-api || true
+                    docker run -d --name lab3-api -p 8000:8000 --restart unless-stopped --network my_network \
+                        -e VAULT_PASSWORD=${VAULT_PASSWORD} \
+                        -e DB_HOST=postgres \
+                        -e DB_PORT=5432 \
+                        -e DB_USER=ml_user \
+                        -e DB_PASSWORD=StrongPassword123! \
+                        -e DB_NAME=ml_models \
+                        ${IMAGE_LATEST}
+                """
                 echo '✅ Контейнер развернут'
             }
         }
@@ -113,10 +128,10 @@ pipeline {
             }
             steps {
                 echo '🏥 Проверка здоровья развернутого контейнера...'
-                bat '''
+                bat """
                     timeout /t 10 /nobreak > nul
                     curl.exe -f http://localhost:8000/health
-                '''
+                """
                 echo '✅ Health check пройден'
             }
         }
