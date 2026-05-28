@@ -127,11 +127,18 @@ pipeline {
                 expression { params.DEPLOY_ACTION == 'deploy' }
             }
             steps {
+                bat '''
+                    echo === Проверка соединения ===
+                    curl.exe -f http://localhost:8000/health
+                    echo === Готово ===
+                    '''
+            }
+            steps {
                 echo '🏥 Проверка здоровья развернутого контейнера...'
-                bat """
+                bat '''
                     timeout /t 10 /nobreak > nul
                     curl.exe -f http://localhost:8000/health
-                """
+                '''
                 echo '✅ Health check пройден'
             }
         }
