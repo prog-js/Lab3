@@ -21,6 +21,7 @@ pipeline {
         VAULT_PASSWORD = credentials('vault-password')
         DOCKER_HUB_USER = '4ddocker'
         DOCKER_HUB_PASS = credentials('docker')
+        DOCKER_HUB_CRED = 'docker'
     }
 
     stages {
@@ -107,13 +108,12 @@ pipeline {
                 expression { params.DEPLOY_ACTION == 'deploy' }
             }
             steps {
-                echo '📤 Публикация образа на Docker Hub...'
-                bat """
-                    echo ${DOCKER_HUB_PASS} | docker login -u ${DOCKER_HUB_USER} --password-stdin
-                    docker push ${IMAGE_NAME}
-                    docker push ${IMAGE_LATEST}
-                    docker logout
-                """
+                script {
+                    docker.withRegistry('', DOCKER_HUB_CRED) {
+                        docker.image("4ddocker/lab3:${env.BUILD_NUMBER}").push()
+                        docker.image("4ddocker/lab3:latest").push()
+                    }
+                }
                 echo '✅ Образ опубликован на Docker Hub'
             }
         }
