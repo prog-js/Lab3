@@ -150,6 +150,8 @@ pipeline {
             script {
                 bat "docker stop test-func-${env.BUILD_NUMBER} 2>nul || exit 0"
                 bat "docker rm test-func-${env.BUILD_NUMBER} 2>nul || exit 0"
+                bat 'docker stop lab3-api 2>nul || exit 0'
+                bat 'docker rm lab3-api 2>nul || exit 0'
                 bat "docker rmi ${IMAGE_NAME} ${IMAGE_LATEST} || true"
             }
         }
