@@ -128,10 +128,12 @@ pipeline {
             }
             steps {
                 echo '🏥 Проверка здоровья развернутого контейнера...'
-                bat 'echo === Проверка соединения ==='
-                bat 'timeout /t 10 /nobreak > nul'
-                bat 'curl.exe -f http://localhost:8000/health'
-                bat 'echo === Готово ==='
+                bat '''
+                    timeout /t 10 /nobreak > nul
+                    echo === Проверка соединения ===
+                    curl.exe -f http://localhost:8000/health
+                    echo === Готово ===
+                '''
                 echo '✅ Health check пройден'
             }
         }
