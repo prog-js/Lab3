@@ -127,14 +127,20 @@ pipeline {
                 expression { params.DEPLOY_ACTION == 'deploy' }
             }
             steps {
-                echo '🏥 Проверка здоровья развернутого контейнера...'
-                bat '''
-            timeout /t 10 /nobreak > nul
-            echo === Проверка соединения ===
-            docker exec lab3-api python -c "import urllib.request; print(urllib.request.urlopen('http://localhost:8000/health').read().decode())"
-            echo === Готово ===
+                powershell '''
+            Start-Sleep -Seconds 10
+            try {
+                $response = Invoke-WebRequest -Uri "http://localhost:8000/health" -UseBasicParsing
+                if ($response.StatusCode -eq 200) {
+                    Write-Host "✅ Health check пройден"
+                } else {
+                    exit 1
+                }
+            } catch {
+                Write-Host "Ошибка: $_"
+                exit 1
+            }
         '''
-                echo '✅ Health check пройден'
             }
         }
     }
