@@ -131,7 +131,7 @@ pipeline {
                 bat '''
             timeout /t 10 /nobreak > nul
             echo === Проверка соединения ===
-            "C:\\Windows\\System32\\curl.exe" -f http://localhost:8000/health
+            docker exec lab3-api python -c "import urllib.request; print(urllib.request.urlopen('http://localhost:8000/health').read().decode())"
             echo === Готово ===
         '''
                 echo '✅ Health check пройден'
