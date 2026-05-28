@@ -19,6 +19,8 @@ pipeline {
         IMAGE_LATEST = '4ddocker/lab3:latest'
         LOCAL_DATA_PATH = 'C:\\DopEdu\\ML_ITMO\\DevOpsLab\\Lab3'
         VAULT_PASSWORD = credentials('vault-password')
+        DOCKER_HUB_USER = '4ddocker'
+        DOCKER_HUB_PASS = credentials('docker')
     }
 
     stages {
@@ -100,6 +102,22 @@ pipeline {
             }
         }
 
+        stage('Push to Docker Hub') {
+            when {
+                expression { params.DEPLOY_ACTION == 'deploy' }
+            }
+            steps {
+                echo '📤 Публикация образа на Docker Hub...'
+                bat """
+                    echo ${DOCKER_HUB_PASS} | docker login -u ${DOCKER_HUB_USER} --password-stdin
+                    docker push ${IMAGE_NAME}
+                    docker push ${IMAGE_LATEST}
+                    docker logout
+                """
+                echo '✅ Образ опубликован на Docker Hub'
+            }
+        }
+
         stage('Deploy Container') {
             when {
                 expression { params.DEPLOY_ACTION == 'deploy' }
@@ -128,19 +146,19 @@ pipeline {
             }
             steps {
                 powershell '''
-            Start-Sleep -Seconds 10
-            try {
-                $response = Invoke-WebRequest -Uri "http://localhost:8000/health" -UseBasicParsing
-                if ($response.StatusCode -eq 200) {
-                    Write-Host "✅ Health check пройден"
-                } else {
-                    exit 1
-                }
-            } catch {
-                Write-Host "Ошибка: $_"
-                exit 1
-            }
-        '''
+                    Start-Sleep -Seconds 10
+                    try {
+                        $response = Invoke-WebRequest -Uri "http://localhost:8000/health" -UseBasicParsing
+                        if ($response.StatusCode -eq 200) {
+                            Write-Host "✅ Health check пройден"
+                        } else {
+                            exit 1
+                        }
+                    } catch {
+                        Write-Host "Ошибка: $_"
+                        exit 1
+                    }
+                '''
             }
         }
     }
