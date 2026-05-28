@@ -127,11 +127,12 @@ pipeline {
                 expression { params.DEPLOY_ACTION == 'deploy' }
             }
             steps {
-                powershell '''
-            Start-Sleep -Seconds 10
-            Write-Host "=== Проверка соединения ==="
-            Invoke-WebRequest -Uri http://localhost:8000/health -UseBasicParsing
-            Write-Host "=== Готово ==="
+                echo '🏥 Проверка здоровья развернутого контейнера...'
+                bat '''
+            timeout /t 10 /nobreak > nul
+            echo === Проверка соединения ===
+            "C:\\Windows\\System32\\curl.exe" -f http://localhost:8000/health
+            echo === Готово ===
         '''
                 echo '✅ Health check пройден'
             }
